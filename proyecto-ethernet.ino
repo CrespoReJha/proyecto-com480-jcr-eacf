@@ -1,66 +1,66 @@
-#include <SPI.h>
-#include <Ethernet.h>
-#include <AccelStepper.h>
-#include <DHT.h>
+#include <SPI.h>              // Comunicación SPI necesaria para Ethernet
+#include <Ethernet.h>         // Librería para conectividad Ethernet
+#include <AccelStepper.h>     // Control preciso de motores paso a paso
+#include <DHT.h>              // Lectura de sensores de temperatura y humedad
 
 // === CONFIGURACIÓN DHT11 ===
-#define DHTPIN 8
-#define DHTTYPE DHT11
-DHT dht(DHTPIN, DHTTYPE);
+#define DHTPIN 8              // Pin de datos del sensor DHT11
+#define DHTTYPE DHT11         // Tipo de sensor DHT
+DHT dht(DHTPIN, DHTTYPE);     // Objeto del sensor DHT11
 
-// === CONFIGURACIÓN ETHERNET ===+
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-IPAddress ip(192, 168, 0, 40);
-IPAddress gateway(192, 168, 0, 1);
-IPAddress subnet(255, 255, 255, 0);
-EthernetServer server(80);
+// === CONFIGURACIÓN ETHERNET ===
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // Dirección MAC ficticia
+IPAddress ip(192, 168, 0, 40);                       // Dirección IP del Arduino
+IPAddress gateway(192, 168, 0, 1);                   // Puerta de enlace
+IPAddress subnet(255, 255, 255, 0);                  // Máscara de subred
+EthernetServer server(80);                           // Servidor en el puerto 80
 
 // === PINES ===
-const int LED = 4;
-const int RELE = 5;
-#define STEP_PIN 3
-#define DIR_PIN 2
+const int LED = 4;             // Pin de salida para el LED
+const int RELE = 5;            // Pin de salida para el relé
+#define STEP_PIN 3             // Pin de paso del motor
+#define DIR_PIN 2              // Pin de dirección del motor
 
 // === MOTOR PASO A PASO ===
-const long pasosApertura = 1500; // 5 vueltas si son 200 pasos/vuelta
-AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
+const long pasosApertura = 1500;                       // Pasos para abrir el "ekran"
+AccelStepper stepper(AccelStepper::DRIVER, STEP_PIN, DIR_PIN); // Objeto motor
 
 // === VARIABLES DE ESTADO ===
-bool estadoLED = false;
-bool estadoRELE = false;
-bool ekranAbierto = false;
-float temperatura = 0;
-float humedad = 0;
-unsigned long ultimaLecturaSensor = 0;
-unsigned long ultimoAjax = 0;
-const long intervaloAjax = 3000; // Actualizar cada 3 segundos
+bool estadoLED = false;        // Estado actual del LED
+bool estadoRELE = false;       // Estado actual del relé
+bool ekranAbierto = false;     // Estado de apertura del "ekran"
+float temperatura = 0;         // Temperatura actual
+float humedad = 0;             // Humedad actual
+unsigned long ultimaLecturaSensor = 0; // Última vez que se leyó el sensor
+unsigned long ultimoAjax = 0;          // Última actualización AJAX
+const long intervaloAjax = 3000;       // Intervalo de actualización (3s)
 
 // === VARIABLES PARA TIEMPO ===
 char tiempoString[20]; // Para almacenar la hora de actualización
 
 void setup() {
-  Serial.begin(9600);
-  dht.begin();
+  Serial.begin(9600);          // Inicializa comunicación serial
+  dht.begin();                 // Inicia el sensor DHT11
 
-  pinMode(LED, OUTPUT);
-  pinMode(RELE, OUTPUT);
-  digitalWrite(LED, LOW);
-  digitalWrite(RELE, LOW);
+  pinMode(LED, OUTPUT);        // LED como salida
+  pinMode(RELE, OUTPUT);       // Relé como salida
+  digitalWrite(LED, LOW);      // Apaga LED
+  digitalWrite(RELE, LOW);     // Apaga relé
 
-  // Configuración optimizada del motor
-  stepper.setMaxSpeed(300);      // Velocidad reducida para mayor torque
-  stepper.setAcceleration(500);  // Aceleración en pasos/segundo²
-  stepper.setCurrentPosition(0);
+  // Configura el motor
+  stepper.setMaxSpeed(300);      // Velocidad máxima
+  stepper.setAcceleration(500);  // Aceleración
+  stepper.setCurrentPosition(0); // Posición inicial
 
-  // Iniciar servidor Ethernet
+  // Inicia Ethernet
   Ethernet.begin(mac, ip, gateway, gateway, subnet);
   server.begin();
   Serial.print(F("Servidor iniciado en IP: "));
   Serial.println(Ethernet.localIP());
-  
-  // Leer sensores una vez al inicio
-  leerSensores();
+
+  leerSensores(); // Primera lectura al iniciar
 }
+
 
 void actualizarTiempoString() {
   unsigned long tiempo = millis() / 1000; // Convertir a segundos
