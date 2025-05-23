@@ -1,77 +1,91 @@
-# Informe Técnico del Código Arduino
+# Informe del Código de Arduino
+
+## Integrantes
+* **Jhamil Crespo Rejas -** Ingeniería en Ciencias de la Computación
+* **Enrique Antonio Calderon -** Ingeniería en Ciencias de la Computación
 
 ## Resumen General
 
-El código proporcionado está diseñado para controlar remotamente dispositivos físicos utilizando Arduino, ofreciendo interacción a través de una interfaz web y comunicación continua con sensores ambientales (temperatura y humedad) y actuadores (LED, relé y motor paso a paso).
+Este informe detalla minuciosamente el funcionamiento y la lógica del código Arduino proporcionado, diseñado para controlar dispositivos físicos de forma remota mediante una interfaz web. El sistema gestiona sensores ambientales de temperatura y humedad, así como actuadores que incluyen un LED, un relé y un motor paso a paso.
 
 ## Librerías Utilizadas
 
 * **SPI.h y Ethernet.h:**
 
-  * Gestión de comunicaciones mediante Ethernet, habilitando el dispositivo Arduino para funcionar como servidor web.
+  * Gestionan la comunicación mediante Ethernet, permitiendo al Arduino actuar como servidor web, recibir comandos y enviar información actualizada constantemente a los clientes conectados.
 
 * **AccelStepper.h:**
 
-  * Manejo del motor paso a paso, permitiendo movimientos controlados en dirección y velocidad.
+  * Se emplea para gestionar el motor paso a paso, proporcionando control preciso sobre movimientos, dirección, velocidad y aceleración.
 
 * **DHT.h:**
 
-  * Lectura del sensor DHT11, utilizado para medir temperatura y humedad del entorno.
+  * Específica para leer datos del sensor DHT11, que mide temperatura y humedad ambiental.
 
 ## Herramientas y Componentes
 
 ### Hardware
 
-* **Sensor DHT11:** Para medir temperatura y humedad ambiente.
-* **Motor Paso a Paso:** Controlado por el driver AccelStepper.
-* **LED y Relé:** Dispositivos básicos controlados digitalmente para indicar estados o activar cargas mayores.
-* **Shield Ethernet:** Para conectividad y configuración del servidor.
+* **Sensor DHT11:** Mide temperatura y humedad ambiental en tiempo real.
+* **Motor Paso a Paso:** Permite movimientos precisos y controlados, facilitando ajustes mecánicos detallados.
+* **LED y Relé:** Indicadores visuales y controladores de cargas eléctricas mayores, manejados mediante señales digitales.
+* **Shield Ethernet:** Conectividad Ethernet que permite al Arduino actuar como servidor web.
 
 ### Software
 
-* **Servidor Web:** Implementado para ofrecer interfaz visual y recibir comandos HTTP desde un cliente remoto.
-* **JSON:** Utilizado para enviar actualizaciones periódicas del estado de sensores y dispositivos mediante AJAX.
-* **AJAX:** Para actualizar información del cliente de forma dinámica sin refrescar toda la página web.
+* **Servidor Web:** Permite interacción con usuarios remotos mediante comandos HTTP.
+* **JSON:** Envía información de sensores y actuadores en formato estructurado.
+* **AJAX:** Actualiza dinámicamente la información en la interfaz web del cliente sin recargar la página completa.
 
 ## Explicación de la Lógica
 
 ### Setup Inicial
 
-* Inicialización de comunicación serial para depuración.
-* Configuración de sensores, actuadores y parámetros del motor paso a paso.
-* Arranque del servidor Ethernet.
-* Primera lectura de sensores para establecer valores iniciales.
+* **Comunicación Serial:** Se inicia con una velocidad de 9600 baudios para depuración mediante `Serial.begin(9600);`.
+* **Configuración del DHT11:** Se inicializa el sensor para lecturas ambientales mediante `dht.begin();`.
+* **Configuración de Pines:** Se establecen pines digitales como salida para el LED y el relé mediante `pinMode()`.
+* **Motor Paso a Paso:** Configuración inicial mediante la función `stepper.setMaxSpeed()` y `stepper.setAcceleration()` para determinar su comportamiento.
+* **Servidor Ethernet:** Se configura con dirección IP, gateway y subnet mediante `Ethernet.begin()` y se inicia el servidor con `server.begin();`.
 
 ### Bucle Principal (`loop()`)
 
-La lógica se basa en prioridades claramente definidas:
+#### 1. Movimiento del Motor:
 
-1. **Movimiento del Motor:**
+* El motor se ejecuta continuamente hacia la posición objetivo configurada mediante `stepper.run();`, facilitando movimientos suaves y precisos.
 
-   * El motor se mueve constantemente mientras exista una posición objetivo configurada.
+#### 2. Lectura de Sensores:
 
-2. **Lectura de Sensores:**
+* Si el motor no está en movimiento (`stepper.distanceToGo() == 0`) y han pasado más de 5 segundos desde la última lectura (`millis() - ultimaLecturaSensor > 5000`), se realiza una nueva lectura mediante `leerSensores();`.
 
-   * Se realiza cada 5 segundos si el motor no está en movimiento para evitar interferencias o lecturas incorrectas.
+#### 3. Gestión de Peticiones Web:
 
-3. **Gestión de Peticiones Web:**
+* El servidor escucha continuamente solicitudes mediante `server.available();`. Al recibir una solicitud:
 
-   * El servidor escucha continuamente solicitudes HTTP. Al recibir una solicitud:
+  * Captura la petición HTTP en forma de cadena.
+  * Si la petición es hacia la ruta `/data`, responde con información estructurada en JSON mediante `enviarDatosJSON()`.
+  * Para otras rutas, procesa comandos mediante `procesarComandos()` y responde con una interfaz HTML generada por `enviarPaginaWeb()`.
 
-     * Si es una petición para datos (`GET /data`), se responde con un JSON con información actualizada de sensores y estados de dispositivos.
-     * Si es cualquier otra solicitud, interpreta comandos para cambiar estados de actuadores (LED, relé, motor).
+### Funciones Clave Detalladas
 
-### Control de Actuadores
+#### **leerSensores():**
 
-* **LED y Relé:** Se controlan digitalmente (ON/OFF).
-* **Motor Paso a Paso:** Controlado mediante comandos específicos (`abrir` y `cerrar`) que ajustan su posición objetivo utilizando la biblioteca AccelStepper.
+* Captura la temperatura y humedad mediante `dht.readTemperature()` y `dht.readHumidity()`.
+* Registra el tiempo de la última lectura y actualiza el tiempo en formato legible.
 
-### Interfaz Web
+#### **procesarComandos():**
 
-* Página HTML simple que permite controlar actuadores.
-* JavaScript utilizando AJAX para actualizar dinámicamente estados de dispositivos y sensores.
+* Analiza la petición HTTP recibida para ejecutar acciones específicas, activando o desactivando el LED, relé o configurando movimientos del motor paso a paso (abrir/cerrar).
+
+#### **enviarDatosJSON():**
+
+* Construye y envía un objeto JSON con datos actuales del sistema, incluyendo temperatura, humedad, estado del motor, LED, relé y tiempo de actualización.
+
+#### **enviarPaginaWeb():**
+
+* Genera una página HTML con controles interactivos para gestionar remotamente los actuadores.
+* Incluye un script AJAX que actualiza dinámicamente la información mostrada, proporcionando una interfaz interactiva y actualizada continuamente.
 
 ## Comunicación y Formato de Datos
 
-* **Protocolo HTTP:** Utilizado para recibir comandos y enviar respuestas.
-* **JSON:** Utilizado para estructurar datos enviados a la página web.
+* **Protocolo HTTP:** Recibe comandos y envía respuestas estructuradas entre el servidor Arduino y clientes web.
+* **Formato JSON:** Estructura la información enviada al cliente para simplificar la interpretación y el procesamiento en la interfaz.
