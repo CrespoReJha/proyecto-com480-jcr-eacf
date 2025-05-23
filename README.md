@@ -6,7 +6,7 @@
 
 ## Resumen General
 
-Este informe detalla minuciosamente el funcionamiento y la lógica del código Arduino proporcionado, diseñado para controlar dispositivos físicos de forma remota mediante una interfaz web. El sistema gestiona sensores ambientales de temperatura y humedad, así como actuadores que incluyen un LED, un relé y un motor paso a paso.
+Este informe detalla el funcionamiento y la lógica del código Arduino proporcionado, diseñado para controlar dispositivos físicos de forma remota mediante una interfaz web. El sistema gestiona sensores ambientales de temperatura y humedad, así como actuadores que incluyen un LED, un relé y un motor paso a paso.
 
 ## Librerías Utilizadas
 
@@ -30,6 +30,8 @@ Este informe detalla minuciosamente el funcionamiento y la lógica del código A
 * **Motor Paso a Paso:** Permite movimientos precisos y controlados, facilitando ajustes mecánicos detallados.
 * **LED y Relé:** Indicadores visuales y controladores de cargas eléctricas mayores, manejados mediante señales digitales.
 * **Shield Ethernet:** Conectividad Ethernet que permite al Arduino actuar como servidor web.
+* **DRV8825:** El DRV8825 es un controlador de motores paso a paso fabricado por Texas Instruments, diseñado para controlar motores bipolares de forma eficiente y precisa. Este driver es ampliamente utilizado en proyectos con Arduino, impresoras 3D y sistemas de automatización gracias a su simplicidad de uso y capacidad de controlar altas corrientes.
+![alt text](image.png)
 
 ### Software
 
@@ -90,9 +92,6 @@ Este informe detalla minuciosamente el funcionamiento y la lógica del código A
 * **Protocolo HTTP:** Recibe comandos y envía respuestas estructuradas entre el servidor Arduino y clientes web.
 * **Formato JSON:** Estructura la información enviada al cliente para simplificar la interpretación y el procesamiento en la interfaz.
 
-
-¡Perfecto! Aquí tienes el punto adicional para tu sección de conexiones o herramientas, que describe de forma clara cómo conectar físicamente los componentes del proyecto (paso a paso, sin microstepping), incluyendo el LED y el relé que enciende una lámpara:
-
 ---
 
 ## Conexiones del Sistema
@@ -142,5 +141,3 @@ A continuación, se detallan las conexiones físicas necesarias para replicar el
      * GND → GND
 
 ---
-
-¿Quieres que incluya este bloque directamente dentro del Markdown o prefieres que reemplace una sección específica como parte del documento final?
