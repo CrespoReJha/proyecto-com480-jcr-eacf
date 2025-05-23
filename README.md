@@ -6,7 +6,7 @@
 
 ## Resumen General
 
-Este informe detalla el funcionamiento y la lógica del código Arduino proporcionado, diseñado para controlar dispositivos físicos de forma remota mediante una interfaz web. El sistema gestiona sensores ambientales de temperatura y humedad, así como actuadores que incluyen un LED, un relé y un motor paso a paso.
+Este informe detalla el funcionamiento y la lógica del proyecto realizado, diseñado para controlar dispositivos físicos de forma remota mediante una interfaz web. El sistema gestiona sensores ambientales de temperatura y humedad, así como actuadores que incluyen un LED, un relé y un motor paso a paso.
 
 ## Librerías Utilizadas
 
