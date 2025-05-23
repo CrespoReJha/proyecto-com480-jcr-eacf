@@ -89,3 +89,58 @@ Este informe detalla minuciosamente el funcionamiento y la lógica del código A
 
 * **Protocolo HTTP:** Recibe comandos y envía respuestas estructuradas entre el servidor Arduino y clientes web.
 * **Formato JSON:** Estructura la información enviada al cliente para simplificar la interpretación y el procesamiento en la interfaz.
+
+
+¡Perfecto! Aquí tienes el punto adicional para tu sección de conexiones o herramientas, que describe de forma clara cómo conectar físicamente los componentes del proyecto (paso a paso, sin microstepping), incluyendo el LED y el relé que enciende una lámpara:
+
+---
+
+## Conexiones del Sistema
+
+A continuación, se detallan las conexiones físicas necesarias para replicar el sistema descrito en el código:
+
+1. **Sensor DHT11**
+
+   * VCC → 5V en Arduino
+   * GND → GND en Arduino
+   * DATA → Pin digital **8**
+
+2. **Motor Paso a Paso con DRV8825 (sin control de micropasos)**
+
+   * DIR → Pin digital **2**
+   * STEP → Pin digital **3**
+   * ENABLE → Opcional, puede ir a GND si no se usa
+   * VMOT → Fuente externa (9–12V recomendada)
+   * GND (potencia) → GND de la fuente externa
+   * GND (lógica) → GND del Arduino
+   * VDD y GND (lógica) → 5V y GND del Arduino
+   * Salidas A1, A2, B1, B2 → Motor (según datasheet)
+
+3. **LED Indicador**
+
+   * Ánodo (positivo largo) → Resistencia de 220Ω → Pin digital **4**
+   * Cátodo (corto) → GND en Arduino
+
+4. **Módulo de Relé (para lámpara u otro dispositivo AC)**
+
+   * IN → Pin digital **5** del Arduino
+   * VCC → 5V del Arduino
+   * GND → GND del Arduino
+   * Com (COM) → Cable de fase del enchufe
+   * NO (Normally Open) → Cable que va a la lámpara
+   * *ATENCIÓN:* Asegúrate de trabajar con corriente alterna (AC) solo si tienes conocimientos adecuados o supervisión, ya que puede ser peligrosa.
+
+5. **Módulo Ethernet (Shield o W5100)**
+
+   * Insertar directamente sobre el Arduino UNO (si es shield) o conectar mediante pines SPI:
+
+     * MOSI → Pin 11
+     * MISO → Pin 12
+     * SCK → Pin 13
+     * CS (Chip Select) → Pin 10
+     * VCC → 5V
+     * GND → GND
+
+---
+
+¿Quieres que incluya este bloque directamente dentro del Markdown o prefieres que reemplace una sección específica como parte del documento final?
